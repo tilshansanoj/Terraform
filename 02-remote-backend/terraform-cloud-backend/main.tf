@@ -1,0 +1,21 @@
+terraform {
+    backend "remote" {
+      organization = "terraform-cloud-backend"
+    
+    workspaces {
+      name = "cloud-backend"
+    }
+  }
+    
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
