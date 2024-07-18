@@ -1,70 +1,3 @@
-   terraform {
-  backend "s3" {
-        bucket         = "tilshansanoj-s3" # REPLACE WITH YOUR BUCKET NAME
-        key            = "03-variables/web-app/terraform.tfstate"
-        region         = "us-east-1"
-        dynamodb_table = "tf-state-locks"
-        encrypt        = true
-   }
-
-   required_providers {
-     aws = {
-        source = "hashicorp/aws"
-        version = "~> 3.0"
-     }
-   }
-}
-
-provider "aws" {
-  region = var.region
-}
-
-#configuration of ec2 instance
-resource "aws_instance" "instance_1" {
-  ami = var.ami
-  instance_type = var.instance_type
-  security_groups = [aws_security_group.instances.name]
-  user_data = <<-E0F
-            #!/bin/bash
-            echo "hello world 1" > index.html
-            python3 -m http.server 8080 &
-            E0F
-}
-
-#configuration of ec2 instance
-resource "aws_instance" "instance_2" {
-  ami = var.ami
-  instance_type = var.instance_type
-  security_groups = [aws_security_group.instances.name]
-  user_data = <<-E0F
-            #!/bin/bash
-            echo "hello world 2" > index.html
-            python3 -m http.server 8080 &
-            E0F
-}
-
-#configuration of s3 bucket
-resource "aws_s3_bucket" "terraform_state" {
-  bucket_prefix =  var.bucket_prefix
-  force_destroy = true
-}
-
-resource "aws_s3_bucket_versioning" "bucket_versioning" {
-  bucket = aws_s3_bucket.terraform_state.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_crypto_conf" {
-  bucket = aws_s3_bucket.terraform_state.bucket
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
 #use of default vpc
 data "aws_vpc" "default_vpc" {
     default = true
@@ -158,6 +91,7 @@ resource "aws_lb_listener_rule" "instances" {
   }
 }
 
+
 #configuration of load balancer security group 
 resource "aws_security_group" "aws_lb" {
   name = "alb-security-group"
@@ -192,16 +126,3 @@ resource "aws_lb" "load_balancer" {
   subnets = data.aws_subnet_ids.default_subnet.ids
   security_groups = [ aws_security_group.aws_lb.id ]
 }
-
-resource "aws_db_instance" "db_instance" {
-  allocated_storage   = 5
-  storage_type        = "standard"
-  engine              = "postgres"
-  engine_version      = "16.3"
-  instance_class      = "db.t3.micro"
-  name                = var.db_name
-  username            = var.db_user
-  password            = var.db_pass
-  skip_final_snapshot = true
-}
-

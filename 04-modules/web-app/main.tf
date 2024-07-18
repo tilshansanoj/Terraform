@@ -1,7 +1,7 @@
    terraform {
   backend "s3" {
         bucket         = "tilshansanoj-s3" # REPLACE WITH YOUR BUCKET NAME
-        key            = "03-variables/web-app/terraform.tfstate"
+        key            = "04-modules/web-app/terraform.tfstate"
         region         = "us-east-1"
         dynamodb_table = "tf-state-locks"
         encrypt        = true
@@ -16,7 +16,25 @@
 }
 
 provider "aws" {
-  region = var.region
+  region = "us-east-1"
+}
+
+variable "db_pass" {
+  description = "password for the database"
+  type = string
+  sensitive = true
+}
+
+module "web_app_1" {
+    source = "../web-app-module"
+
+    # input variables
+    bucket_prefix = "tilshansanoj-s3"
+    app_name = "web-app-1"
+    envrinoment_name = "production"
+    db_name       = "mydb"
+    db_user       = "foo"
+    db_pass = "foobarbaz"
 }
 
 #configuration of ec2 instance
