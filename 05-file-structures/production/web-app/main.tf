@@ -1,11 +1,12 @@
    terraform {
   backend "s3" {
         bucket         = "tilshansanoj-s3" # REPLACE WITH YOUR BUCKET NAME
-        key            = "04-modules/web-app/terraform.tfstate"
+        key            = "05-file-structures/production/terraform.tfstate"
         region         = "us-east-1"
         dynamodb_table = "tf-state-locks"
         encrypt        = true
    }
+
 
    required_providers {
      aws = {
