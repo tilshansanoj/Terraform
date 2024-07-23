@@ -6,7 +6,7 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "envrinoment_name" {
+variable "environment_name" {
     description = "Deployment environment (dev/staging/production)"
     type = string
     default = "dev"  
@@ -54,4 +54,17 @@ variable "db_pass" {
   description = "Password for the database"
   type = string
   sensitive = true
+}
+
+# Route 53 variables
+
+variable "create_dns_zone" {
+  description = "if true, create new route53 zone, if false read existing zone"
+  type = bool
+  default = false
+}
+
+variable "domain" {
+  description = "Domain for the website"
+  type = string
 }
